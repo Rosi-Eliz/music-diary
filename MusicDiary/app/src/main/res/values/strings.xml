@@ -9,4 +9,10 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search_artist">Search artist</string>
+    <string name="search">Search</string>
+    <string name="favourites">Favourites</string>
+    <string name="_11918541_rosi_eliz_dzhurkova">11918541 Rosi-Eliz Dzhurkova</string>
 </resources>

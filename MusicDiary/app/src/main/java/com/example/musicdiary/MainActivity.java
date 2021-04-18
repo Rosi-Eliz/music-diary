@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
-
     TabLayout tabLayout;
     ViewPager2 viewPager;
     @Override
@@ -28,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         tabLayout = findViewById(R.id.tab_layout);
         viewPager = findViewById(R.id.view_pager);
-        MainSlidePagerAdapter mainSlidePagerAdapter = new MainSlidePagerAdapter(this);
+        MainSlidePagerAdapter mainSlidePagerAdapter = new MainSlidePagerAdapter(this, this);
         viewPager.setAdapter(mainSlidePagerAdapter);
 
         new TabLayoutMediator(tabLayout, viewPager,

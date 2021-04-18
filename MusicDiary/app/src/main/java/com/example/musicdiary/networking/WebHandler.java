@@ -9,7 +9,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class WebHandler {
-    private static final String baseURL = "https://www.theaudiodb.com/api/v1/json/1";
+    private static final String baseURL = "https://www.theaudiodb.com/api/v1/json/1/";
 
     private final Retrofit retrofit;
     private final MusicDiaryAPI musicDiaryAPI;

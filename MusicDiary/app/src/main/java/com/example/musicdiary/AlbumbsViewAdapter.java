@@ -31,7 +31,7 @@ public class AlbumbsViewAdapter extends RecyclerView.Adapter<AlbumbsViewAdapter.
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.artist_item, parent, false);
+        View view = layoutInflater.inflate(R.layout.album_item, parent, false);
         return new AlbumbsViewAdapter.ViewHolder(view);
     }
 
@@ -40,7 +40,9 @@ public class AlbumbsViewAdapter extends RecyclerView.Adapter<AlbumbsViewAdapter.
         Album album = albumsQuery.getAlbums().get(position);
         Glide.with(context).load(album.getPicture()).into(holder.imageView);
         holder.name.setText(album.getName());
-        holder.year.setText(album.getYearReleased());
+        if(album.getYearReleased() != null) {
+            holder.year.setText(album.getYearReleased().toString());
+        }
         holder.genre.setText(album.getGenre());
         holder.description.setText(album.getDescription());
     }

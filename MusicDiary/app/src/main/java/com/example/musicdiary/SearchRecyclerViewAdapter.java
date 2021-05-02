@@ -70,6 +70,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
                     Artist artist = searchQuery.getArtists().get(id);
                     Intent intent = new Intent(context, ArtistActivity.class);
                     intent.putExtra("artist", new Gson().toJson(artist));
+                    itemView.getContext().startActivity(intent);
                 }
             });
         }

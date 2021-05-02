@@ -1,6 +1,7 @@
 package com.example.musicdiary;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.musicdiary.networking.Artist;
+import com.google.gson.Gson;
 
 import java.util.List;
 
 public class FavouritesRecyclerViewAdapter extends RecyclerView.Adapter<FavouritesRecyclerViewAdapter.ViewHolder> {
     private Context context;
     private List<Artist> artists;
-    public FavouritesRecyclerViewAdapter(Context context) {
+    public FavouritesRecyclerViewAdapter(Context context, List<Artist> artists) {
         this.context = context;
+        this.artists = artists;
     }
 
     @NonNull
@@ -48,7 +51,17 @@ public class FavouritesRecyclerViewAdapter extends RecyclerView.Adapter<Favourit
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.artist_image_view);
-            textView = itemView.findViewById(R.id.artist_name_text_view);
+            textView = itemView.findViewById(R.id.artist_text_view);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Integer id = getAdapterPosition();
+                    Artist artist =  artists.get(id);
+                    Intent intent = new Intent(context, ArtistActivity.class);
+                    intent.putExtra("artist", new Gson().toJson(artist));
+                    itemView.getContext().startActivity(intent);
+                }
+            });
         }
     }
 }

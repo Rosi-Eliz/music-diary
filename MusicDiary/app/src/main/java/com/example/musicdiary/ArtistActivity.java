@@ -4,7 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,6 +19,11 @@ import com.example.musicdiary.networking.Artist;
 import com.example.musicdiary.networking.WebHandler;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -67,14 +74,43 @@ public class ArtistActivity extends AppCompatActivity {
         favouriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+                SharedPreferences settings;
+                settings = getSharedPreferences("PREFERENCES", Context.MODE_PRIVATE);
+
+                String currentArtist = settings.getString("artists", "");
+                List<Artist> favouriteArtists = new ArrayList<>();
+                Type listType = new TypeToken<ArrayList<Artist>>(){}.getType();
+
+                if(!currentArtist.isEmpty()){
+
+                    favouriteArtists = new Gson().fromJson(currentArtist, listType);
+                    if(favouriteArtists.contains(artist))
+                        return;
+                }
+                favouriteArtists.add(artist);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString("artists", new Gson().toJson(favouriteArtists));
+                editor.commit();
             }
         });
 
         unfavouriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences settings;
+                settings = getSharedPreferences("PREFERENCES", Context.MODE_PRIVATE);
 
+                String currentArtist = settings.getString("artists", "");
+                List<Artist> favouriteArtists = new ArrayList<>();
+                Type listType = new TypeToken<ArrayList<Artist>>(){}.getType();
+
+                favouriteArtists = new Gson().fromJson(currentArtist, listType);
+                if(favouriteArtists.contains(artist)){
+                    favouriteArtists.remove(artist);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString("artists", new Gson().toJson(favouriteArtists));
+                    editor.commit();
+                }
             }
         });
     }

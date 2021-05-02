@@ -14,16 +14,29 @@ public class MainSlidePagerAdapter extends FragmentStateAdapter {
         super(fragmentActivity);
         this.context = context;
     }
+    private FavouritesFragment favouritesFragment;
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
        switch(position)
        {
-           case 0: return new SearchFragment(context);
-           case 1: return new FavouritesFragment();
+           case 0: {
+               return new SearchFragment(context);
+           }
+           case 1: {
+               favouritesFragment = new FavouritesFragment();
+           return  favouritesFragment;
+
+           }
            default: throw new RuntimeException();
        }
+    }
+
+    public void invalidateFavouritesFragment() {
+        if(favouritesFragment != null) {
+            favouritesFragment.setContent();
+        }
     }
 
     @Override

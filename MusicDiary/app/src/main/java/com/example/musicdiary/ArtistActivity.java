@@ -1,6 +1,9 @@
 package com.example.musicdiary;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -8,16 +11,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.musicdiary.networking.AlbumsQuery;
 import com.example.musicdiary.networking.Artist;
 import com.example.musicdiary.networking.WebHandler;
-import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -31,31 +38,63 @@ import retrofit2.Response;
 
 public class ArtistActivity extends AppCompatActivity {
     Artist artist;
+    private TextView descriptionTextView;
     private ImageView imageView;
-    private TextView textView;
-    private Button favouriteButton;
-    private Button unfavouriteButton;
     private RecyclerView recyclerView;
     private WebHandler webHandler;
+    private Menu menu;
+    private ProgressBar progressBar;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.artist_menu, menu);
+        this.menu = menu;
+        styleFavouriteButton();
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.favourite_button) {
+            if(isArtistFavourite()) {
+                removeArtistFromFavourites();
+                Toast.makeText(this, "Artist removed from favourites", Toast.LENGTH_SHORT).show();
+            } else {
+                addArtistToFavourites();
+                Toast.makeText(this, "Artist added to favourites", Toast.LENGTH_SHORT).show();
+            }
+            styleFavouriteButton();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_artist);
         imageView = findViewById(R.id.artist_image_view2);
-        textView = findViewById(R.id.artist_name_text_view);
-        favouriteButton = findViewById(R.id.add_to_favourite_button);
-        unfavouriteButton = findViewById(R.id.remove_favourite_button);
+        descriptionTextView = findViewById(R.id.artist_description_text_view);
         recyclerView = findViewById(R.id.discography_recycler_view);
-        webHandler = new WebHandler();
+        progressBar = findViewById(R.id.artist_progress_bar);
+
         Intent intent = getIntent();
-//        intent.putExtra("artist", new Gson().toJson(artist));
-        Artist artist = new Gson().fromJson(String.valueOf(intent.getStringExtra("artist")), Artist.class);
-        textView.setText(artist.getName());
+        artist = new Gson().fromJson(String.valueOf(intent.getStringExtra("artist")), Artist.class);
+        descriptionTextView.setText(artist.getDescription());
+        descriptionTextView.setMovementMethod(new ScrollingMovementMethod());
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(artist.getName());
+        }
+
+        webHandler = new WebHandler();
         Glide.with(this).load(artist.getPicture()).into(imageView);
+        progressBar.setVisibility(View.VISIBLE);
         webHandler.getAlbums(artist.getId(), new Callback<AlbumsQuery>() {
             @Override
             public void onResponse(Call<AlbumsQuery> call, Response<AlbumsQuery> response) {
+                progressBar.setVisibility(View.INVISIBLE);
                 if(response.body() == null)
                     return;
 
@@ -64,54 +103,78 @@ public class ArtistActivity extends AppCompatActivity {
                 recyclerView.setAdapter(albumbsViewAdapter);
             }
 
-
             @Override
             public void onFailure(Call<AlbumsQuery> call, Throwable t) {
-
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(ArtistActivity.this, "Something went wrong.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
-        favouriteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences settings;
-                settings = getSharedPreferences("PREFERENCES", Context.MODE_PRIVATE);
+    private boolean isArtistFavourite() {
+        SharedPreferences settings;
+        settings = getSharedPreferences("PREFERENCES", Context.MODE_PRIVATE);
 
-                String currentArtist = settings.getString("artists", "");
-                List<Artist> favouriteArtists = new ArrayList<>();
-                Type listType = new TypeToken<ArrayList<Artist>>(){}.getType();
+        String currentArtist = settings.getString("artists", "");
+        List<Artist> favouriteArtists = new ArrayList<>();
+        Type listType = new TypeToken<ArrayList<Artist>>(){}.getType();
 
-                if(!currentArtist.isEmpty()){
+        if(!currentArtist.isEmpty()){
 
-                    favouriteArtists = new Gson().fromJson(currentArtist, listType);
-                    if(favouriteArtists.contains(artist))
-                        return;
-                }
-                favouriteArtists.add(artist);
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putString("artists", new Gson().toJson(favouriteArtists));
-                editor.commit();
+            favouriteArtists = new Gson().fromJson(currentArtist, listType);
+            if(favouriteArtists.contains(artist)) {
+                return true;
             }
-        });
+        }
+        return false;
+    }
 
-        unfavouriteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences settings;
-                settings = getSharedPreferences("PREFERENCES", Context.MODE_PRIVATE);
+    private void addArtistToFavourites() {
+        SharedPreferences settings;
+        settings = getSharedPreferences("PREFERENCES", Context.MODE_PRIVATE);
 
-                String currentArtist = settings.getString("artists", "");
-                List<Artist> favouriteArtists = new ArrayList<>();
-                Type listType = new TypeToken<ArrayList<Artist>>(){}.getType();
+        String currentArtist = settings.getString("artists", "");
+        List<Artist> favouriteArtists = new ArrayList<>();
+        Type listType = new TypeToken<ArrayList<Artist>>(){}.getType();
 
-                favouriteArtists = new Gson().fromJson(currentArtist, listType);
-                if(favouriteArtists.contains(artist)){
-                    favouriteArtists.remove(artist);
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString("artists", new Gson().toJson(favouriteArtists));
-                    editor.commit();
-                }
-            }
-        });
+        if(!currentArtist.isEmpty()){
+
+            favouriteArtists = new Gson().fromJson(currentArtist, listType);
+            if(favouriteArtists.contains(artist))
+                return;
+        }
+        favouriteArtists.add(artist);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("artists", new Gson().toJson(favouriteArtists));
+        editor.commit();
+    }
+
+    private void removeArtistFromFavourites() {
+        SharedPreferences settings;
+        settings = getSharedPreferences("PREFERENCES", Context.MODE_PRIVATE);
+
+        String currentArtist = settings.getString("artists", "");
+        List<Artist> favouriteArtists = new ArrayList<>();
+        Type listType = new TypeToken<ArrayList<Artist>>(){}.getType();
+
+        favouriteArtists = new Gson().fromJson(currentArtist, listType);
+        if(favouriteArtists.contains(artist)){
+            favouriteArtists.remove(artist);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("artists", new Gson().toJson(favouriteArtists));
+            editor.commit();
+        }
+    }
+
+    private void styleFavouriteButton() {
+        if (menu == null) {
+            return;
+        }
+
+        if (!isArtistFavourite()) {
+            menu.getItem(0).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_favourite_border));
+        } else {
+            menu.getItem(0).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_favourite));
+        }
     }
 }

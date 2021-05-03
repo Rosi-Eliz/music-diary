@@ -1,6 +1,7 @@
 package com.example.musicdiary;
 
 import android.content.Context;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.musicdiary.networking.Album;
 import com.example.musicdiary.networking.AlbumsQuery;
-import com.example.musicdiary.networking.Artist;
-import com.example.musicdiary.networking.SearchQuery;
 
 public class AlbumbsViewAdapter extends RecyclerView.Adapter<AlbumbsViewAdapter.ViewHolder> {
 
@@ -40,8 +39,10 @@ public class AlbumbsViewAdapter extends RecyclerView.Adapter<AlbumbsViewAdapter.
         Album album = albumsQuery.getAlbums().get(position);
         Glide.with(context).load(album.getPicture()).into(holder.imageView);
         holder.name.setText(album.getName());
-        if(album.getYearReleased() != null) {
+        if(album.getYearReleased() != null && album.getYearReleased() != 0) {
             holder.year.setText(album.getYearReleased().toString());
+        } else {
+            holder.year.setText("");
         }
         holder.genre.setText(album.getGenre());
         holder.description.setText(album.getDescription());
@@ -66,10 +67,12 @@ public class AlbumbsViewAdapter extends RecyclerView.Adapter<AlbumbsViewAdapter.
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.album_image_view);
+            imageView.setImageResource(R.drawable.placeholder_image);
             name = itemView.findViewById(R.id.album);
-            year = itemView.findViewById(R.id.year_released_text_view);
-            genre = itemView.findViewById(R.id.genre_text_view);
+            year = itemView.findViewById(R.id.genre_text_view);
+            genre = itemView.findViewById(R.id.year_released_text_view);
             description = itemView.findViewById(R.id.description_text_view);
+            description.setMovementMethod(new ScrollingMovementMethod());
         }
 
     }

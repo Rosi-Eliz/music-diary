@@ -17,7 +17,7 @@ import com.google.gson.Gson;
 
 import java.util.List;
 
-public class FavouritesRecyclerViewAdapter extends RecyclerView.Adapter<FavouritesRecyclerViewAdapter.ViewHolder> {
+public class FavouritesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
     private List<Artist> artists;
     public FavouritesRecyclerViewAdapter(Context context, List<Artist> artists) {
@@ -27,41 +27,63 @@ public class FavouritesRecyclerViewAdapter extends RecyclerView.Adapter<Favourit
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.artist_item, parent, false);
-        return new FavouritesRecyclerViewAdapter.ViewHolder(view);
+        View view;
+        if(artists == null || artists.isEmpty()) {
+            view = layoutInflater.inflate(R.layout.empty_item, parent, false);
+            return new FavouritesRecyclerViewAdapter.EmptyViewHolder(view);
+        } else {
+            view = layoutInflater.inflate(R.layout.artist_item, parent, false);
+            return new FavouritesRecyclerViewAdapter.ItemViewHolder(view);
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Artist artist = artists.get(position);
-        Glide.with(context).load(artist.getPicture()).into(holder.imageView);
-        holder.textView.setText(artist.getName());
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if(artists != null && !artists.isEmpty()) {
+            FavouritesRecyclerViewAdapter.ItemViewHolder itemViewHolder = (FavouritesRecyclerViewAdapter.ItemViewHolder)holder;
+            Artist artist = artists.get(position);
+            Glide.with(context).load(artist.getPicture()).into(itemViewHolder.imageView);
+            itemViewHolder.textView.setText(artist.getName());
+        }
     }
 
     @Override
     public int getItemCount() {
+        if(artists == null || artists.size() == 0)
+        {
+            return 1;
+        }
         return artists.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ItemViewHolder extends RecyclerView.ViewHolder {
         private ImageView imageView;
         private TextView textView;
-        public ViewHolder(@NonNull View itemView) {
+        public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.artist_image_view);
+            imageView.setImageResource(R.drawable.placeholder_image);
             textView = itemView.findViewById(R.id.artist_text_view);
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Integer id = getAdapterPosition();
-                    Artist artist =  artists.get(id);
+                    Artist artist = artists.get(id);
                     Intent intent = new Intent(context, ArtistActivity.class);
                     intent.putExtra("artist", new Gson().toJson(artist));
                     itemView.getContext().startActivity(intent);
                 }
             });
+        }
+    }
+
+    public class EmptyViewHolder extends  RecyclerView.ViewHolder {
+
+        public EmptyViewHolder(@NonNull View itemView) {
+            super(itemView);
         }
     }
 }

@@ -21,6 +21,7 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     ViewPager2 viewPager;
+    private MainSlidePagerAdapter mainSlidePagerAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         tabLayout = findViewById(R.id.tab_layout);
         viewPager = findViewById(R.id.view_pager);
-        MainSlidePagerAdapter mainSlidePagerAdapter = new MainSlidePagerAdapter(this, this);
+        mainSlidePagerAdapter = new MainSlidePagerAdapter(this, this);
         viewPager.setAdapter(mainSlidePagerAdapter);
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> tab.setText(position == 0 ? "Search" : "Favourites")
@@ -53,8 +54,11 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageScrollStateChanged(state);
             }
         });
-
-
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mainSlidePagerAdapter.invalidateFavouritesFragment();
+    }
 }

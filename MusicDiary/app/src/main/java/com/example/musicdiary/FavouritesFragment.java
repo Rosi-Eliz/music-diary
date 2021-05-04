@@ -23,6 +23,7 @@ import java.util.List;
 public class FavouritesFragment extends Fragment {
     private RecyclerView recyclerView;
     private View view;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +35,7 @@ public class FavouritesFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_favourites, container, false);
         this.view = view;
+        setContent();
         return view;
     }
 

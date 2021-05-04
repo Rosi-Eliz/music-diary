@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -99,9 +100,10 @@ public class ArtistActivity extends AppCompatActivity {
                     return;
 
                 AlbumbsViewAdapter albumbsViewAdapter = new AlbumbsViewAdapter(ArtistActivity.this, response.body());
-                recyclerView.setLayoutManager(new LinearLayoutManager(ArtistActivity.this));
+                recyclerView.setLayoutManager(new GridLayoutManager(ArtistActivity.this, 3));
                 recyclerView.setAdapter(albumbsViewAdapter);
             }
+
 
             @Override
             public void onFailure(Call<AlbumsQuery> call, Throwable t) {
